@@ -18,17 +18,24 @@ func solution(name string, input []byte) int {
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
+	accum := 0
 	for _, line := range lines {
-		uniq[line] = true
+		first := -1
+		last := -1
+		for _, c := range line {
+			if c >= '0' && c <= '9' {
+				if first == -1 {
+					first = int(c - '0')
+					last = first
+				} else {
+					last = int(c - '0')
+				}
+			}
+		}
+		log.Printf("%s = %d", line, first*10+last)
+		accum += first*10 + last
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
-
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	return accum
 }
 
 func main() {
