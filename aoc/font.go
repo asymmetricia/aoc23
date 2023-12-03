@@ -158,6 +158,7 @@ func TypesetBytes(line string, opts ...TypesetOpts) [][]byte {
 		}
 		glyph, ok := Glyphs[opt.Font][g]
 		if !ok && opt.Font != Pixl {
+			println("WARNING: no glyph for ", string(g))
 			glyph, ok = Glyphs[Pixl][g]
 		}
 		if !ok {
@@ -215,6 +216,13 @@ func Typeset(img draw.Image, cursor image.Point, line string, color color.Color,
 			cursor.X = initX
 		default:
 			glyph, ok := Glyphs[opt.Font][g]
+			if !ok && opt.Font != Pixl {
+				glyph, ok = Glyphs[Pixl][g]
+			}
+			if !ok {
+				println("missing glyph ", string(g))
+				glyph = Glyphs[Pixl]['?']
+			}
 			if ok {
 				for x := 0; x < glyph.Image.Bounds().Size().X*opt.Scale; x++ {
 					for y := 0; y < glyph.Image.Bounds().Size().Y*opt.Scale; y++ {
