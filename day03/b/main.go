@@ -6,6 +6,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/asymmetricia/aoc23/canvas"
+	"github.com/asymmetricia/aoc23/coord"
 	"github.com/sirupsen/logrus"
 
 	"github.com/asymmetricia/aoc23/aoc"
@@ -13,22 +15,69 @@ import (
 
 var log = logrus.StandardLogger()
 
-func solution(name string, input []byte) int {
+func solution(name string, input []byte) int64 {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+	w := coord.Load(lines, true)
+	var cnv canvas.Canvas
+	w.Each(func(c coord.Coord) (stop bool) {
+		cnv.Set(c.X, c.Y, canvas.Cell{Color: aoc.TolVibrantGrey, Value: w.At(c)})
+		return false
+	})
+
+	var accum int64
+
+	gears := w.Find('*')
+	for _, gear := range gears {
+		first, second := coord.C(-1, -1), coord.C(-1, -1)
+		cnv.Set(gear.X, gear.Y, canvas.Cell{Color: aoc.TolVibrantMagenta, Value: w.At(gear)})
+		for _, neigh := range gear.Neighbors(true) {
+			if unicode.IsDigit(w.At(neigh)) {
+				cursor := neigh
+				for unicode.IsDigit(w.At(cursor.West())) {
+					cursor = cursor.West()
+				}
+				if first.X == -1 {
+					first = cursor
+				} else if first != cursor {
+					second = cursor
+				}
+			}
+		}
+		if first.X != -1 && second.X != -1 {
+			cursor := first
+			for unicode.IsDigit(w.At(cursor.West())) {
+				cursor = cursor.West()
+			}
+			fv := int(w.At(cursor) - '0')
+			cnv.Set(cursor.X, cursor.Y, canvas.Cell{Color: aoc.TolVibrantCyan, Value: w.At(cursor)})
+			for unicode.IsDigit(w.At(cursor.East())) {
+				cursor = cursor.East()
+				cnv.Set(cursor.X, cursor.Y, canvas.Cell{Color: aoc.TolVibrantCyan, Value: w.At(cursor)})
+				fv = fv*10 + int(w.At(cursor)-'0')
+			}
+
+			cursor = second
+			for unicode.IsDigit(w.At(cursor.West())) {
+				cursor = cursor.West()
+			}
+			sv := int(w.At(cursor) - '0')
+			cnv.Set(cursor.X, cursor.Y, canvas.Cell{Color: aoc.TolVibrantCyan, Value: w.At(cursor)})
+			for unicode.IsDigit(w.At(cursor.East())) {
+				cursor = cursor.East()
+				cnv.Set(cursor.X, cursor.Y, canvas.Cell{Color: aoc.TolVibrantCyan, Value: w.At(cursor)})
+				sv = sv*10 + int(w.At(cursor)-'0')
+			}
+
+			accum += int64(fv) * int64(sv)
+		}
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	aoc.RenderPng(cnv.Render(), name+".png")
 
-	return -1
+	return accum
 }
 
 func main() {
