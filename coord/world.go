@@ -192,7 +192,7 @@ func (d DenseWorld) At(coord Coord) rune {
 		return -1
 	}
 	if len(d) <= coord.Y || len(d[coord.Y]) <= coord.X {
-		return 0
+		return -1
 	}
 	return d[coord.Y][coord.X]
 }

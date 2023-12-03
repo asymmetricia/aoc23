@@ -161,6 +161,7 @@ func TypesetBytes(line string, opts ...TypesetOpts) [][]byte {
 			glyph, ok = Glyphs[Pixl][g]
 		}
 		if !ok {
+			println("WARNING: no glyph for ", string(g))
 			glyph = Glyphs[Pixl]['?']
 		}
 		for glyphY, glyphRow := range glyph.Raw {

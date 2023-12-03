@@ -6,6 +6,8 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/asymmetricia/aoc23/canvas"
+	"github.com/asymmetricia/aoc23/coord"
 	"github.com/sirupsen/logrus"
 
 	"github.com/asymmetricia/aoc23/aoc"
@@ -18,17 +20,63 @@ func solution(name string, input []byte) int {
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+	var parts []int
+	w := coord.Load(lines, true)
+	var cnv canvas.Canvas
+	w.Each(func(c coord.Coord) (stop bool) {
+		cnv.Set(c.X, c.Y, canvas.Cell{Color: aoc.TolVibrantGrey, Value: w.At(c)})
+		return false
+	})
+	w.Each(func(c coord.Coord) (stop bool) {
+		v := w.At(c)
+		if !unicode.IsDigit(v) {
+			return false
+		}
+
+		// not the last digit
+		if unicode.IsDigit(w.At(c.East())) {
+			return false
+		}
+
+		var s string
+		part := false
+		cursor := c
+		for unicode.IsDigit(w.At(cursor)) {
+			s = string(w.At(cursor)) + s
+			for _, neigh := range cursor.Neighbors(true) {
+				nv := w.At(neigh)
+				if nv == -1 || nv == '.' || nv == ' ' || unicode.IsDigit(nv) {
+					continue
+				}
+				cnv.Set(neigh.X, neigh.Y, canvas.Cell{Color: aoc.TolVibrantMagenta, Value: w.At(neigh)})
+				part = true
+			}
+			cursor = cursor.West()
+		}
+
+		if part {
+			parts = append(parts, aoc.MustAtoi(s))
+		}
+
+		cursor = c
+		for unicode.IsDigit(w.At(cursor)) {
+			if part {
+				cnv.Set(cursor.X, cursor.Y, canvas.Cell{Color: aoc.TolVibrantCyan, Value: w.At(cursor)})
+			} else {
+				cnv.Set(cursor.X, cursor.Y, canvas.Cell{Color: aoc.TolVibrantRed, Value: w.At(cursor)})
+			}
+			cursor = cursor.West()
+		}
+
+		return false
+	})
+
+	aoc.RenderPng(cnv.Render(), name+".png")
+	accum := 0
+	for _, part := range parts {
+		accum += part
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
-
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	return accum
 }
 
 func main() {
