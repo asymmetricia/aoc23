@@ -9,3 +9,11 @@ func MustAtoi(a string) int {
 	}
 	return i
 }
+
+func MustAtoiSlice(a []string) []int {
+	var ret []int
+	for _, s := range a {
+		ret = append(ret, MustAtoi(s))
+	}
+	return ret
+}

@@ -13,22 +13,27 @@ import (
 
 var log = logrus.StandardLogger()
 
-func solution(name string, input []byte) int {
+func solution(name string, input []byte) uint64 {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+	times := aoc.MustAtoiSlice(strings.Fields(lines[0])[1:])
+	distances := aoc.MustAtoiSlice(strings.Fields(lines[1])[1:])
+
+	var accum uint64 = 1
+	for race, time := range times {
+		count := 0
+		dist := distances[race]
+		for i := 1; i < time; i++ {
+			if i*(time-i) > dist {
+				count++
+			}
+		}
+		accum *= uint64(count)
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	return accum
 }
 
 func main() {
