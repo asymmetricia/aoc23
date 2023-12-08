@@ -6,6 +6,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/asymmetricia/aoc23/set"
 	"github.com/sirupsen/logrus"
 
 	"github.com/asymmetricia/aoc23/aoc"
@@ -18,17 +19,24 @@ func solution(name string, input []byte) int {
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+
+	accum := 0
+	for _, card := range lines {
+		haveL, wantL := aoc.Split2(aoc.After(card, ": "), " | ")
+		have := set.FromWords(haveL)
+		want := set.FromWords(wantL)
+		is := have.Intersect(want)
+		if len(is) == 0 {
+			continue
+		}
+		v := 1
+		for i := 0; i < len(is)-1; i++ {
+			v *= 2
+		}
+		accum += v
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	return accum
 }
 
 func main() {

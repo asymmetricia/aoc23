@@ -6,29 +6,43 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/asymmetricia/aoc23/set"
 	"github.com/sirupsen/logrus"
 
 	"github.com/asymmetricia/aoc23/aoc"
 )
 
+type Card struct {
+	Want, Have set.Set[string]
+	Count      int64
+}
+
 var log = logrus.StandardLogger()
 
-func solution(name string, input []byte) int {
+func solution(name string, input []byte) int64 {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+
+	var cards []*Card
+	for _, card := range lines {
+		haveL, wantL := aoc.Split2(aoc.After(card, ": "), " | ")
+		have := set.FromWords(haveL)
+		want := set.FromWords(wantL)
+		cards = append(cards, &Card{want, have, 1})
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	var total int64
+	for id, card := range cards {
+		n := len(card.Have.Intersect(card.Want))
+		logrus.Printf("card %d wins %d of next %d cards", id, card.Count, n)
+		for i := id + 1; i < id+1+n; i++ {
+			cards[i].Count += card.Count
+		}
+		total += card.Count
+	}
+	return total
 }
 
 func main() {
