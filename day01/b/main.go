@@ -70,6 +70,6 @@ func main() {
 		log.Warningf("no test data present")
 	}
 
-	input := aoc.Input(2023, 01)
+	input := aoc.Input(2023, 1)
 	log.Printf("input solution: %d", solution("input", input))
 }
