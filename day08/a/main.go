@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"unicode"
@@ -11,6 +12,8 @@ import (
 	"github.com/asymmetricia/aoc23/aoc"
 )
 
+var nodes = map[string][2]string{}
+
 var log = logrus.StandardLogger()
 
 func solution(name string, input []byte) int {
@@ -18,17 +21,25 @@ func solution(name string, input []byte) int {
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+
+	dirs := lines[0]
+	for _, line := range lines[2:] {
+		nodes[line[0:3]] = [2]string{line[7:10], line[12:15]}
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	cursor := "AAA"
+	c := 0
+	for cursor != "ZZZ" {
+		fmt.Println(c)
+		if dirs[c%len(dirs)] == 'L' {
+			cursor = nodes[cursor][0]
+		} else {
+			cursor = nodes[cursor][1]
+		}
+		c++
+	}
 
-	return -1
+	return c
 }
 
 func main() {
