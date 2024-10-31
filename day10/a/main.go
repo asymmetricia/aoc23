@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/asymmetricia/aoc23/coord"
 	"os"
 	"strings"
 	"unicode"
@@ -24,11 +25,69 @@ func solution(name string, input []byte) int {
 	}
 	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	world := coord.Load(lines, true)
+	loop := &coord.DenseWorld{}
+	src := world.Find('S')[0]
+	loop.Set(src, 'S')
 
-	return -1
+	cursor := src
+	dir := coord.North
+	if n := world.At(src.North()); cursor == src && (n == '|' || n == 'F' || n == '7') {
+		dir = coord.North
+		cursor = src.North()
+	}
+	if e := world.At(src.East()); cursor == src && (e == '-' || e == 'J' || e == '7') {
+		dir = coord.East
+		cursor = src.East()
+	}
+	if w := world.At(src.West()); cursor == src && (w == '-' || w == 'F' || w == 'L') {
+		dir = coord.West
+		cursor = src.West()
+	}
+	if s := world.At(src.South()); cursor == src && (s == '|' || s == 'J' || s == 'L') {
+		dir = coord.South
+		cursor = src.South()
+	}
+	loop.Set(cursor, world.At(cursor))
+
+	count := 1
+	for cursor != src {
+		switch world.At(cursor) {
+		case '|':
+		case '-':
+		case 'F':
+			if dir == coord.North {
+				dir = coord.East
+			} else {
+				dir = coord.South
+			}
+		case 'L':
+			if dir == coord.South {
+				dir = coord.East
+			} else {
+				dir = coord.North
+			}
+		case 'J':
+			if dir == coord.East {
+				dir = coord.North
+			} else {
+				dir = coord.West
+			}
+		case '7':
+			if dir == coord.East {
+				dir = coord.South
+			} else {
+				dir = coord.West
+			}
+		}
+		cursor = cursor.Move(dir)
+		loop.Set(cursor, world.At(cursor))
+		count++
+	}
+
+	log.Print(count)
+
+	return count / 2
 }
 
 func main() {
