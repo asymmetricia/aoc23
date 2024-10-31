@@ -366,3 +366,26 @@ func Bounds(frames []*Canvas) (width int, height int) {
 	}
 	return x, y
 }
+
+// DrawRectangle draws a rectangle on the canvas that covers the given
+// coordinates, in the given color and font.
+func (c *Canvas) DrawRectangle(x1, y1, x2, y2 int, col color.Color, font aoc.Font) {
+	if x1 > x2 {
+		x1, x2 = x2, x1
+	}
+	if y1 > y2 {
+		y1, y2 = y2, y1
+	}
+	c.Set(x1, y1, Cell{col, aoc.LineTL, font})
+	c.Set(x2, y1, Cell{col, aoc.LineTR, font})
+	c.Set(x1, y2, Cell{col, aoc.LineBL, font})
+	c.Set(x2, y2, Cell{col, aoc.LineBR, font})
+	for x := x1 + 1; x < x2; x++ {
+		c.Set(x, y1, Cell{col, aoc.LineH, font})
+		c.Set(x, y2, Cell{col, aoc.LineH, font})
+	}
+	for y := y1 + 1; y < y2; y++ {
+		c.Set(x1, y, Cell{col, aoc.LineV, font})
+		c.Set(x2, y, Cell{col, aoc.LineV, font})
+	}
+}
