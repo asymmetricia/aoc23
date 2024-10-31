@@ -215,12 +215,15 @@ func Typeset(img draw.Image, cursor image.Point, line string, color color.Color,
 			cursor.Y += LineHeight * opt.Scale
 			cursor.X = initX
 		default:
+			if g == 0 {
+				g = ' '
+			}
 			glyph, ok := Glyphs[opt.Font][g]
 			if !ok && opt.Font != Pixl {
 				glyph, ok = Glyphs[Pixl][g]
 			}
 			if !ok {
-				println("missing glyph ", string(g))
+				fmt.Printf("missing glyph %c - %d\n", g, g)
 				glyph = Glyphs[Pixl]['?']
 			}
 			if ok {
