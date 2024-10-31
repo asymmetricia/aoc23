@@ -13,6 +13,32 @@ import (
 
 var log = logrus.StandardLogger()
 
+func Diffs(in []int) []int {
+	var ret []int
+	for i := 0; i < len(in)-1; i++ {
+		ret = append(ret, in[i+1]-in[i])
+	}
+	return ret
+}
+
+func Zero(in []int) bool {
+	for _, i := range in {
+		if i != 0 {
+			return false
+		}
+	}
+	return true
+}
+
+func Next(in []int) int {
+	diffs := Diffs(in)
+	if Zero(diffs) {
+		return in[0]
+	}
+
+	return in[len(in)-1] + Next(diffs)
+}
+
 func solution(name string, input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
@@ -24,11 +50,17 @@ func solution(name string, input []byte) int {
 	}
 	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	sum := 0
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		var fieldsN []int
+		for _, f := range fields {
+			fieldsN = append(fieldsN, aoc.Int(f))
+		}
+		sum += Next(fieldsN)
+	}
 
-	return -1
+	return sum
 }
 
 func main() {
