@@ -227,6 +227,9 @@ const (
 
 type World interface {
 	Print(...PrintOption)
+	// At returns the rune present at the given coordinate. If the coordinate is not
+	// in the world (because the world is dense and it's out of range, or because the
+	// world is sparse and it's not set) then At returns -1
 	At(Coord) rune
 	Set(Coord, rune)
 	Each(func(Coord) (stop bool))
@@ -239,18 +242,38 @@ var _ World = (*SparseWorld)(nil)
 var _ World = (*DenseWorld)(nil)
 
 // Load loads a world from the given list of lines and returns it. The world is
-// dense (array-based) if `dense` is true, otherwise it's sparse (map-based).
-func Load(lines []string, dense bool) World {
+// dense (array-based) if `config.Dense` is true, otherwise it's sparse
+// (map-based). Characters present in `config.Ignore` will not be added to the
+// world.
+func Load(lines []string, config ...LoadConfig) World {
+	var conf LoadConfig
+	if len(config) > 0 {
+		conf = config[0]
+	}
+
+	ignore := map[rune]bool{}
+	for _, i := range conf.Ignore {
+		ignore[i] = true
+	}
+
 	var w World
-	if dense {
+	if conf.Dense {
 		w = new(DenseWorld)
 	} else {
 		w = &SparseWorld{}
 	}
 	for y, row := range lines {
 		for x, char := range row {
+			if ignore[char] {
+				continue
+			}
 			w.Set(C(x, y), char)
 		}
 	}
 	return w
+}
+
+type LoadConfig struct {
+	Dense  bool
+	Ignore string
 }

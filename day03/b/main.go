@@ -20,7 +20,7 @@ func solution(name string, input []byte) int64 {
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	w := coord.Load(lines, true)
+	w := coord.Load(lines, coord.LoadConfig{Dense: true})
 	var cnv canvas.Canvas
 	w.Each(func(c coord.Coord) (stop bool) {
 		cnv.Set(c.X, c.Y, canvas.Cell{Color: aoc.TolVibrantGrey, Value: w.At(c)})

@@ -54,7 +54,7 @@ func solution(name string, input []byte) int {
 	}
 	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	world := coord.Load(lines, true)
+	world := coord.Load(lines, coord.LoadConfig{Dense: true})
 	loop := &coord.DenseWorld{}
 	src := world.Find('S')[0]
 	loop.Set(src, 'S')
