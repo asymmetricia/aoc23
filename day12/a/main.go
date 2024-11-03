@@ -13,6 +13,57 @@ import (
 
 var log = logrus.StandardLogger()
 
+func check(record string, groupings []int) bool {
+	for _, g := range groupings {
+		// consume leading `.`
+		for len(record) > 0 && record[0] == '.' {
+			record = record[1:]
+			if len(record) == 0 {
+				return false
+			}
+		}
+
+		// consume the exact number of `#`
+		for g > 0 {
+			if len(record) == 0 || record[0] == '.' {
+				return false
+			}
+			g--
+			record = record[1:]
+		}
+
+		if len(record) > 0 && record[0] == '#' {
+			return false
+		}
+	}
+
+	for len(record) > 0 && record[0] == '.' {
+		record = record[1:]
+	}
+
+	if len(record) > 0 {
+		return false
+	}
+
+	return true
+}
+
+func reconstruct(record string, groupings []int) int {
+	if strings.ContainsRune(record, '?') {
+		a := strings.Replace(record, "?", "#", 1)
+		b := strings.Replace(record, "?", ".", 1)
+		ar := reconstruct(a, groupings)
+		br := reconstruct(b, groupings)
+		return ar + br
+	}
+
+	if check(record, groupings) {
+		return 1
+	}
+
+	return 0
+}
+
 func solution(name string, input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
@@ -24,11 +75,13 @@ func solution(name string, input []byte) int {
 	}
 	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	total := 0
+	for _, line := range lines {
+		fields := strings.Fields(line)
+		total += reconstruct(fields[0], aoc.MustAtoiSlice(strings.Split(fields[1], ",")))
+	}
 
-	return -1
+	return total
 }
 
 func main() {
