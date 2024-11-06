@@ -2,8 +2,10 @@ package main
 
 import (
 	"bytes"
+	"github.com/asymmetricia/aoc23/coord"
 	"os"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/sirupsen/logrus"
@@ -12,6 +14,88 @@ import (
 )
 
 var log = logrus.StandardLogger()
+
+func tilt(w coord.World, d coord.Direction) (changed bool) {
+	minx, miny, maxx, maxy := w.Rect()
+
+	if d == coord.North {
+		for y := miny + 1; y <= maxy; y++ {
+			for x := minx; x <= maxx; x++ {
+				from := coord.C(x, y)
+				if w.At(from) != 'O' {
+					continue
+				}
+				to := from
+				for w.At(to.North()) == '.' {
+					to = to.North()
+				}
+				if to != from {
+					w.Set(to, 'O')
+					w.Set(from, '.')
+					changed = true
+				}
+			}
+		}
+	}
+	if d == coord.East {
+		for x := maxx - 1; x >= minx; x-- {
+			for y := maxy; y >= miny; y-- {
+				from := coord.C(x, y)
+				if w.At(from) != 'O' {
+					continue
+				}
+				to := from
+				for w.At(to.East()) == '.' {
+					to = to.East()
+				}
+				if to != from {
+					w.Set(to, 'O')
+					w.Set(from, '.')
+					changed = true
+				}
+			}
+		}
+	}
+	if d == coord.South {
+		for y := maxy - 1; y >= miny; y-- {
+			for x := minx; x <= maxx; x++ {
+				from := coord.C(x, y)
+				if w.At(from) != 'O' {
+					continue
+				}
+				to := from
+				for w.At(to.South()) == '.' {
+					to = to.South()
+				}
+				if to != from {
+					w.Set(to, 'O')
+					w.Set(from, '.')
+					changed = true
+				}
+			}
+		}
+	}
+	if d == coord.West {
+		for x := minx - 1; x <= maxx; x++ {
+			for y := maxy; y >= miny; y-- {
+				from := coord.C(x, y)
+				if w.At(from) != 'O' {
+					continue
+				}
+				to := from
+				for w.At(to.West()) == '.' {
+					to = to.West()
+				}
+				if to != from {
+					w.Set(to, 'O')
+					w.Set(from, '.')
+					changed = true
+				}
+			}
+		}
+	}
+	return changed
+}
 
 func solution(name string, input []byte) int {
 	// trim trailing space only
@@ -24,11 +108,49 @@ func solution(name string, input []byte) int {
 	}
 	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	w := coord.Load(lines, coord.LoadConfig{Dense: true})
+	_, _, _, maxy := w.Rect()
 
-	return -1
+	states := map[string]int{}
+	var last time.Time
+	for n := 0; n < 1000000000; n++ {
+		if time.Since(last) > 5*time.Second {
+			log.Printf("%d/%d (%.2f%%)", n, 1000000000, float32(n)/1000000000*100)
+			last = time.Now()
+		}
+		changed := false
+		changed = tilt(w, coord.North) || changed
+		changed = tilt(w, coord.West) || changed
+		changed = tilt(w, coord.South) || changed
+		changed = tilt(w, coord.East) || changed
+		if !changed {
+			log.Print(n)
+			break
+		}
+		if states != nil {
+			s := w.(*coord.DenseWorld).String()
+			if _, ok := states[s]; ok {
+				log.Printf("%d .. %d", states[s], n)
+				mod := n - states[s]
+				for n+mod < 1000000000 {
+					n += mod
+				}
+				states = nil
+			} else {
+				states[s] = n
+			}
+		}
+	}
+
+	var total int
+	w.Each(func(c coord.Coord) (stop bool) {
+		if w.At(c) == 'O' {
+			total += maxy - c.Y + 1
+		}
+		return false
+	})
+
+	return total
 }
 
 func main() {

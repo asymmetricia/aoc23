@@ -25,11 +25,32 @@ func solution(name string, input []byte) int {
 	}
 	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	w := coord.Load(lines, coord.LoadConfig{Dense: true})
+	_, _, _, maxy := w.Rect()
 
-	return -1
+	changed := true
+	for changed {
+		changed = false
+		w.Each(func(c coord.Coord) (stop bool) {
+			if w.At(c) == 'O' && w.At(c.North()) == '.' {
+				changed = true
+				w.Set(c.North(), 'O')
+				w.Set(c, '.')
+			}
+
+			return false
+		})
+	}
+
+	var total int
+	w.Each(func(c coord.Coord) (stop bool) {
+		if w.At(c) == 'O' {
+			total += maxy - c.Y + 1
+		}
+		return false
+	})
+
+	return total
 }
 
 func main() {
