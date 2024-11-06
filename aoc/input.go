@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var paths = []string{
@@ -71,4 +72,22 @@ func Input(year int, day int) []byte {
 	}
 
 	return input
+}
+
+func Blocks(input []byte) [][]string {
+	var ret [][]string
+	var accum []string
+	lines := strings.Split(string(input), "\n")
+	for _, l := range lines {
+		if l == "" && len(accum) > 0 {
+			ret = append(ret, accum)
+			accum = nil
+			continue
+		}
+		accum = append(accum, l)
+	}
+	if len(accum) > 0 {
+		ret = append(ret, accum)
+	}
+	return ret
 }
