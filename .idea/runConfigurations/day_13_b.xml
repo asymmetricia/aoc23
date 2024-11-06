@@ -3,6 +3,7 @@
     <module name="aoc23" />
     <working_directory value="$PROJECT_DIR$/day13/b" />
     <kind value="FILE" />
+    <package value="github.com/asymmetricia/aoc23/day13/b" />
     <directory value="$PROJECT_DIR$" />
     <filePath value="$PROJECT_DIR$/day13/b/main.go" />
     <method v="2" />
