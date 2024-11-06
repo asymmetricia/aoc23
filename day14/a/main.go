@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/asymmetricia/aoc23/coord"
 	"os"
 	"strings"
 	"unicode"
