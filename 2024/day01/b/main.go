@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"os"
 	"strings"
 	"unicode"
 
@@ -36,6 +37,6 @@ func main() {
 		TimestampFormat: "2006-01-02T15:04:05",
 	})
 
-	input := aoc.Input(__YEAR__, __DAY__)
+	input := aoc.Input(2024, 01)
 	log.Printf("input solution: %d", solution("input", input))
 }

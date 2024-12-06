@@ -15,6 +15,7 @@ var paths = []string{
 	".",
 	"..",
 	"../..",
+	"../../..",
 }
 
 func Input(year int, day int) []byte {

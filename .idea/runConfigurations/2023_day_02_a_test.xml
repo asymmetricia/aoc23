@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="2023-02 a test" type="GoTestRunConfiguration" folderName="2023">
+    <module name="aoc23" />
+    <working_directory value="$PROJECT_DIR$/2023/day02/a" />
+    <root_directory value="$PROJECT_DIR$" />
+    <kind value="FILE" />
+    <package value="github.com/asymmetricia/aoc23/2023/day02/a" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/2023/day02/a/main_test.go" />
+    <framework value="gotest" />
+    <method v="2" />
+  </configuration>
+</component>
