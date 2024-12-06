@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"slices"
 	"strings"
 	"unicode"
 
@@ -17,17 +18,27 @@ func solution(name string, input []byte) int {
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
+	var a, b []int
 	for _, line := range lines {
-		uniq[line] = true
+		fields := strings.Fields(line)
+		a = append(a, aoc.Int(fields[0]))
+		b = append(b, aoc.Int(fields[1]))
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	slices.Sort(a)
+	slices.Sort(b)
 
-	return -1
+	if len(a) != len(b) {
+		panic("a and b lengths differ")
+	}
+
+	total := 0
+	for i, av := range a {
+		bv := b[i]
+		total += aoc.Abs(av - bv)
+	}
+
+	return total
 }
 
 func main() {

@@ -5,6 +5,9 @@ import (
 	"testing"
 )
 
+const testInput = `
+`
+
 func TestSolution(t *testing.T) {
 	type test struct {
 		name   string
@@ -13,7 +16,7 @@ func TestSolution(t *testing.T) {
 	}
 
 	tests := []test{
-		{"empty", "", -1},
+		{"basic", testInput, -1},
 	}
 
 	for _, tt := range tests {
