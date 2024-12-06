@@ -39,3 +39,15 @@ func Int(in string) int {
 	}
 	return i
 }
+
+func Ints(in string) []int {
+	return Map(strings.Fields(in), Int)
+}
+
+func Map[X any, Y any](x []X, f func(X) Y) []Y {
+	ret := make([]Y, len(x))
+	for i, xx := range x {
+		ret[i] = f(xx)
+	}
+	return ret
+}
