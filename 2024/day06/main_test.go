@@ -5,7 +5,16 @@ import (
 	"testing"
 )
 
-const testInputA = `
+const testInputA = `....#.....
+.........#
+..........
+..#.......
+.......#..
+..........
+.#..^.....
+........#.
+#.........
+......#...
 `
 
 const testInputB = testInputA
@@ -18,11 +27,11 @@ func TestSolutionA(t *testing.T) {
 	}
 
 	tests := []test{
-		{"basic A", testInputA, -1},
+		{"basic A", testInputA, 41},
 	}
 
 	for _, tt := range tests {
-		t.Run(`__YEAR__-__DAY__ A `+tt.name, func(t *testing.T) {
+		t.Run(`2024-06 A `+tt.name, func(t *testing.T) {
 			result := solutionA([]byte(tt.input))
 			require.Equal(t, tt.expect, result)
 		})
@@ -37,11 +46,11 @@ func TestSolutionB(t *testing.T) {
 	}
 
 	tests := []test{
-		{"basic B", testInputB, -1},
+		{"basic B", testInputB, 6},
 	}
 
 	for _, tt := range tests {
-		t.Run(`__YEAR__-__DAY__ B `+tt.name, func(t *testing.T) {
+		t.Run(`2024-06 B `+tt.name, func(t *testing.T) {
 			result := solutionB([]byte(tt.input))
 			require.Equal(t, tt.expect, result)
 		})

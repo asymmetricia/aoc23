@@ -12,7 +12,7 @@ import (
 
 var log = logrus.StandardLogger()
 
-func solutionA(name string, input []byte) int {
+func solutionA(input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
@@ -30,7 +30,7 @@ func solutionA(name string, input []byte) int {
 	return -1
 }
 
-func solutionB(name string, input []byte) int {
+func solutionB(input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
@@ -50,6 +50,6 @@ func main() {
 	})
 
 	input := aoc.Input(__YEAR__, __DAY__)
-	log.Printf("input solution A: %d", solutionA("input", input))
-	log.Printf("input solution B: %d", solutionB("input", input))
+	log.Printf("input solution A: %d", solutionA(input))
+	log.Printf("input solution B: %d", solutionB(input))
 }

@@ -2,8 +2,22 @@ package coord
 
 type Direction int
 
-func (d Direction) CW(fortyFive bool) Direction {
-	if fortyFive {
+// Icon returns the unicode arrow corresponding to the direction
+func (d Direction) Icon() rune {
+	return map[Direction]rune{
+		North:     '↑',
+		NorthEast: '↗',
+		East:      '→',
+		SouthEast: '↘',
+		South:     '↓',
+		SouthWest: '↙',
+		West:      '←',
+		NorthWest: '↖',
+	}[d]
+}
+
+func (d Direction) CW(fortyFive ...bool) Direction {
+	if len(fortyFive) > 0 && fortyFive[0] {
 		return map[Direction]Direction{
 			North:     NorthEast,
 			NorthEast: East,
@@ -23,8 +37,8 @@ func (d Direction) CW(fortyFive bool) Direction {
 	}[d]
 }
 
-func (d Direction) CCW(fortyFive bool) Direction {
-	if fortyFive {
+func (d Direction) CCW(fortyFive ...bool) Direction {
+	if len(fortyFive) > 0 && fortyFive[0] {
 		return map[Direction]Direction{
 			North:     NorthWest,
 			NorthWest: West,

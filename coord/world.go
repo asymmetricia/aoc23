@@ -9,6 +9,26 @@ import (
 
 type SparseWorld map[Coord]rune
 
+func (w SparseWorld) String() string {
+	var lines [][]rune
+	w.Each(func(c Coord) bool {
+		for c.Y >= len(lines) {
+			lines = append(lines, nil)
+		}
+		for len(lines[c.Y]) <= c.X {
+			lines[c.Y] = append(lines[c.Y], ' ')
+		}
+		lines[c.Y][c.X] = w[c]
+		return false
+	})
+
+	sb := &strings.Builder{}
+	for _, line := range lines {
+		sb.WriteString(string(line))
+	}
+	return sb.String()
+}
+
 func (w SparseWorld) Find(r rune) []Coord {
 	var ret []Coord
 	w.Each(func(coord Coord) bool {
@@ -236,6 +256,10 @@ type World interface {
 	Rect() (minX, minY, maxX, maxY int)
 	Copy() World
 	Find(rune) []Coord
+
+	// String produces a string representation of the grid. Consider not using this
+	// for large worlds.
+	String() string
 }
 
 var _ World = (*SparseWorld)(nil)
