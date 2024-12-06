@@ -22,7 +22,7 @@ func TestSolutionA(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(`__YEAR__-__DAY__ A `+tt.name, func(t *testing.T) {
+		t.Run(`2024-03 A `+tt.name, func(t *testing.T) {
 			result := solutionA(tt.name, []byte(tt.input))
 			require.Equal(t, tt.expect, result)
 		})
@@ -41,7 +41,7 @@ func TestSolutionB(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(`__YEAR__-__DAY__ B `+tt.name, func(t *testing.T) {
+		t.Run(`2024-03 B `+tt.name, func(t *testing.T) {
 			result := solutionB(tt.name, []byte(tt.input))
 			require.Equal(t, tt.expect, result)
 		})

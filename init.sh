@@ -33,9 +33,7 @@ render() {
   fi
 }
 
-for PART in a b; do
-  render -s "template.go.tmpl"      "$YEAR/day$DAY/$PART/main.go"
-  render -s "template_test.go.tmpl" "$YEAR/day$DAY/$PART/main_test.go"
-  render    "run_config.xml.tmpl"   ".idea/runConfigurations/${YEAR}_day_${DAY}_${PART}.xml"
-  render    "test_config.xml.tmpl"  ".idea/runConfigurations/${YEAR}_day_${DAY}_${PART}_test.xml"
-done
+render -s "template.go.tmpl"      "$YEAR/day$DAY/main.go"
+render -s "template_test.go.tmpl" "$YEAR/day$DAY/main_test.go"
+render    "run_config.xml.tmpl"   ".idea/runConfigurations/${YEAR}_${DAY}.xml"
+render    "test_config.xml.tmpl"  ".idea/runConfigurations/${YEAR}_day_${DAY}_test.xml"
