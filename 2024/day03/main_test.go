@@ -5,10 +5,10 @@ import (
 	"testing"
 )
 
-const testInputA = `
+const testInputA = `xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))
 `
 
-const testInputB = testInputA
+const testInputB = `xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))`
 
 func TestSolutionA(t *testing.T) {
 	type test struct {
@@ -18,7 +18,7 @@ func TestSolutionA(t *testing.T) {
 	}
 
 	tests := []test{
-		{"basic A", testInputA, -1},
+		{"basic A", testInputA, 161},
 	}
 
 	for _, tt := range tests {
@@ -37,7 +37,7 @@ func TestSolutionB(t *testing.T) {
 	}
 
 	tests := []test{
-		{"basic B", testInputB, -1},
+		{"basic B", testInputB, 48},
 	}
 
 	for _, tt := range tests {

@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
+	"regexp"
 	"strings"
 	"unicode"
 
@@ -16,36 +18,49 @@ func solutionA(name string, input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
-	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+
+	total := 0
+
+	mulRe := regexp.MustCompile(`mul\((\d+),(\d+)\)`)
+	matches := mulRe.FindAllStringSubmatch(string(input), -1)
+	for _, mul := range matches {
+		a := aoc.Int(mul[1])
+		b := aoc.Int(mul[2])
+		total += a * b
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	return total
 }
 
 func solutionB(name string, input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
-	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+
+	mulRe := regexp.MustCompile(`(mul)\((\d+),(\d+)\)|(do)\(\)|(don't)\(\)`)
+	matches := mulRe.FindAllStringSubmatch(string(input), -1)
+	j, _ := json.Marshal(matches)
+	println(string(j))
+
+	total := 0
+	enabled := true
+	for _, mul := range matches {
+		if strings.HasPrefix(mul[0], "do(") {
+			enabled = true
+		} else if strings.HasPrefix(mul[0], "don't(") {
+			enabled = false
+		} else if strings.HasPrefix(mul[0], "mul(") {
+			if enabled {
+				a := aoc.Int(mul[2])
+				b := aoc.Int(mul[3])
+				total += a * b
+			}
+		} else {
+			panic("bad op:" + mul[0])
+		}
 	}
-	log.Printf("read %d %s lines (%d unique)", len(lines), name, len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	return total
 }
 
 func main() {
