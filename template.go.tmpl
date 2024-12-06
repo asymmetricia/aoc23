@@ -34,8 +34,8 @@ func solutionB(name string, input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
-	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-
+	
+  // lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
 	//for _, line := range lines {
 	//	//fields := strings.Fields(line)
 	//}
