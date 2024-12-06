@@ -5,7 +5,12 @@ import (
 	"testing"
 )
 
-const testInput = `
+const testInput = `3   4
+4   3
+2   5
+1   3
+3   9
+3   3
 `
 
 func TestSolution(t *testing.T) {
@@ -16,11 +21,11 @@ func TestSolution(t *testing.T) {
 	}
 
 	tests := []test{
-		{"basic", testInput, -1},
+		{"basic", testInput, 31},
 	}
 
 	for _, tt := range tests {
-		t.Run(`2024-01 b ` + tt.name, func(t *testing.T) {
+		t.Run(`2024-01 a `+tt.name, func(t *testing.T) {
 			result := solution(tt.name, []byte(tt.input))
 			require.Equal(t, tt.expect, result)
 		})
