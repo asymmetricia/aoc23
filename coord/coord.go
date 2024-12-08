@@ -143,10 +143,52 @@ func (c Coord) Equal(a Coord) bool {
 	return c.X == a.X && c.Y == a.Y
 }
 
+// Minus returns c-a, the coordinate {c.X-a.X, c.Y-a.Y}
 func (c Coord) Minus(a Coord) Coord {
 	return Coord{c.X - a.X, c.Y - a.Y}
 }
 
+// Unit returns the unit vector in integer space of the given coordinate, i.e.,
+// for (6,3) it returns (2,1), accounting properly for signs, etc.
+func (c Coord) Unit() Coord {
+	if c.X == 0 && c.Y == 0 {
+		return Coord{0, 0}
+	}
+	if c.X == 0 && c.Y > 0 {
+		return Coord{0, 1}
+	}
+	if c.X == 0 && c.Y < 0 {
+		return Coord{0, -1}
+	}
+	if c.X > 0 && c.Y == 0 {
+		return Coord{1, 0}
+	}
+	if c.X < 0 && c.Y == 0 {
+		return Coord{-1, 0}
+	}
+
+	i := 2
+	for {
+		if c.X > 0 && c.X < i ||
+			c.X < 0 && c.X > -i ||
+			c.Y > 0 && c.Y < i ||
+			c.Y < 0 && c.Y > -i {
+			break
+		}
+
+		for c.X%i == 0 && c.Y%i == 0 {
+			c.X /= i
+			c.Y /= i
+		}
+		i++
+	}
+
+	return c
+}
+
+// TaxiPerimeter returns the set of points that are the given TaxiDistance away
+// from the coordinate. This is a circle in taxi space, which looks like a
+// diamond in Cartesian space.
 func (c Coord) TaxiPerimeter(dist int) []Coord {
 	if dist == 0 {
 		return []Coord{c}
