@@ -21,3 +21,20 @@ func TestCoord_Unit(t *testing.T) {
 		})
 	}
 }
+
+func TestCollinear(t *testing.T) {
+	tests := []struct {
+		name   string
+		coords []coord.Coord
+		want   bool
+	}{
+		{"basic yes", []coord.Coord{{0, 0}, {1, 1}, {2, 2}}, true},
+		{"basic no", []coord.Coord{{0, 0}, {1, 2}, {2, 2}}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := coord.Collinear(tt.coords...)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}

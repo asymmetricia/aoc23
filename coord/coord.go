@@ -219,3 +219,19 @@ func (c Coord) TaxiPerimeter(dist int) []Coord {
 	}
 	return ret
 }
+
+// Collinear returns true if all the given coordinates are on the same line. If
+// there are only one or two coordinates specified, this is by definition true.
+func Collinear(cs ...Coord) bool {
+	if len(cs) < 3 {
+		return true
+	}
+
+	dir := cs[1].Minus(cs[0]).Unit()
+	for _, c := range cs[2:] {
+		if c.Minus(cs[0]).Unit() != dir {
+			return false
+		}
+	}
+	return true
+}

@@ -77,31 +77,20 @@ func solutionB(input []byte) int {
 		return
 	})
 
-	minx, miny, maxx, maxy := grid.Rect()
 	var antinodes []coord.Coord
 	anm := grid.Copy()
 	grid.Each(func(c coord.Coord) (stop bool) {
-		if grid.At(c) != '.' {
-			anm.Set(c, '#')
-			antinodes = append(antinodes, c)
-			return
-		}
-		for ant, locs := range ants {
+		for _, locs := range ants {
 			for _, a := range locs {
-				if c == a {
-					continue
-				}
-				diff := a.Minus(c)
-				diff = diff.Unit()
-				cursor := a.Plus(diff)
-				for cursor.X >= minx && cursor.X <= maxx &&
-					cursor.Y >= miny && cursor.Y <= maxy {
-					if grid.At(cursor) == ant {
+				for _, b := range locs {
+					if a == b {
+						continue
+					}
+					if coord.Collinear(a, b, c) {
 						anm.Set(c, '#')
 						antinodes = append(antinodes, c)
 						return
 					}
-					cursor = cursor.Plus(diff)
 				}
 			}
 		}
