@@ -51,7 +51,13 @@ func Abs[K constraints.Signed | constraints.Float](a K) K {
 	return a
 }
 
+// PrimeFactors returns a map mapping each prime factor to its power in composing
+// the given value.
 func PrimeFactors[T constraints.Integer](i T) map[T]uint {
+	if i == 0 {
+		return nil
+	}
+
 	ret := map[T]uint{}
 	var term T = T(math.Ceil(math.Sqrt(float64(i))))
 	var f T = 2
