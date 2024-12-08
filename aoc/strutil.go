@@ -2,7 +2,6 @@ package aoc
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 )
@@ -34,8 +33,7 @@ func Split2(haystack, needle string) (string, string) {
 func Int(in string) int {
 	i, err := strconv.Atoi(in)
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "could not parse %q as string: %v", in, err)
-		os.Exit(1)
+		panic(fmt.Sprintf("could not parse %q as string: %v", in, err))
 	}
 	return i
 }
