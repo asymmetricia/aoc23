@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/asymmetricia/aoc23/canvas"
+	"github.com/asymmetricia/aoc23/coord"
 	"golang.org/x/exp/slices"
 	"strings"
 	"unicode"
@@ -60,17 +62,111 @@ func solutionA(input []byte) int {
 	return checksum
 }
 
+type block struct {
+	id   int
+	len  int
+	free bool
+}
+
+func render(disk []block, reading, writing, percent int) *canvas.Canvas {
+	const width = 120
+	const height = 28
+	const blockSize = 32
+	cv := &canvas.Canvas{Timing: 1}
+	canvas.TextBox{
+		Top:         0,
+		Left:        0,
+		Title:       []rune(" Elfen™ Defragmenter "),
+		TitleColor:  aoc.TolVibrantMagenta,
+		Footer:      []rune(" !!! UNREGISTERED SHAREWARE !!! "),
+		FooterColor: aoc.TolVibrantRed,
+		FrameColor:  aoc.TolVibrantBlue,
+		Width:       width - 2,
+		Height:      height - 2,
+	}.On(cv)
+
+	canvas.TextBox{
+		Top:        29,
+		Left:       10,
+		Title:      []rune(" Status "),
+		TitleColor: aoc.TolVibrantMagenta,
+		FrameColor: aoc.TolVibrantBlue,
+		Width:      22,
+		Height:     4,
+	}.On(cv)
+	cv.PrintAt(28, 30, fmt.Sprintf("% 3d%%", percent), aoc.TolVibrantGrey)
+	cv.PrintAt(12, 31, string(canvas.ProgressBar(percent, 20)), aoc.TolVibrantGrey)
+	cv.PrintAt(12, 32, "Full Defragmentation", aoc.TolVibrantGrey)
+
+	legendLeft := width - 35
+	canvas.TextBox{
+		Top:        29,
+		Left:       legendLeft,
+		Title:      []rune(" Legend "),
+		TitleColor: aoc.TolVibrantMagenta,
+		FrameColor: aoc.TolVibrantBlue,
+		Width:      22,
+		Height:     4,
+	}.On(cv)
+	cv.PrintAt(legendLeft+2, 30, string([]rune{aoc.BlockFull, aoc.BlockDark, aoc.BlockMedium, aoc.BlockLight}), aoc.TolVibrantRed)
+	cv.PrintAt(legendLeft+6, 30, " - Writing", aoc.TolVibrantGrey)
+	cv.PrintAt(legendLeft+2, 31, string([]rune{aoc.BlockFull, aoc.BlockDark, aoc.BlockMedium, aoc.BlockLight}), aoc.TolVibrantCyan)
+	cv.PrintAt(legendLeft+6, 31, " - Reading", aoc.TolVibrantGrey)
+	cv.PrintAt(legendLeft+2, 33, fmt.Sprintf("   %c = %d blocks", aoc.BlockFull, blockSize), aoc.TolVibrantGrey)
+
+	cursor := coord.C(1, 1)
+	var accum []int
+	var accumType int
+	for segIdx, seg := range disk {
+		for i := 0; i < seg.len; i++ {
+			if seg.free {
+				accum = append(accum, 0)
+			} else {
+				accum = append(accum, 1)
+			}
+
+			if segIdx == writing {
+				accumType = 1
+			} else if segIdx == reading {
+				accumType = 2
+			}
+
+			if len(accum) == blockSize {
+				sum := aoc.Sum(accum)
+				v := aoc.BlockLight
+				if sum > blockSize*3/4 {
+					v = aoc.BlockFull
+				} else if sum > blockSize*1/2 {
+					v = aoc.BlockDark
+				} else if sum > blockSize*1/4 {
+					v = aoc.BlockMedium
+				}
+				col := aoc.TolVibrantGrey
+				if accumType == 1 {
+					col = aoc.TolVibrantRed
+				} else if accumType == 2 {
+					col = aoc.TolVibrantCyan
+				}
+
+				cv.Set(cursor.X, cursor.Y, canvas.Cell{Color: col, Value: v})
+				cursor.X++
+				if cursor.X >= width-1 {
+					cursor.X = 1
+					cursor.Y++
+				}
+				accum = accum[0:0]
+				accumType = 0
+			}
+		}
+	}
+	return cv
+}
+
 func solutionB(input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-
-	type block struct {
-		id   int
-		len  int
-		free bool
-	}
 
 	var disk []block
 	for i, v := range lines[0] {
@@ -81,7 +177,9 @@ func solutionB(input []byte) int {
 		}
 	}
 
+	var stack []*canvas.Canvas
 	for i := len(disk) - 1; i >= 0; i-- {
+		movedTo := -1
 		if disk[i].free {
 			continue
 		}
@@ -93,6 +191,8 @@ func solutionB(input []byte) int {
 			if disk[j].len < toMove.len {
 				continue
 			}
+
+			movedTo = j
 
 			disk = slices.Insert(disk, j, toMove)
 			disk[j+1].len -= toMove.len
@@ -106,6 +206,7 @@ func solutionB(input []byte) int {
 			disk = slices.Delete(disk, i+1, i+2)
 			break
 		}
+		stack = append(stack, render(disk, i, movedTo, 100-i*100/len(disk)))
 	}
 
 	checksum := 0
@@ -120,6 +221,10 @@ func solutionB(input []byte) int {
 			}
 			blockId++
 		}
+	}
+
+	if err := canvas.RenderMp4(stack, "../../2024-09.mp4", log); err != nil {
+		log.Fatal(err)
 	}
 
 	return checksum
