@@ -15,6 +15,7 @@ fi
 
 YEAR="$(printf "%04d" "$1")"
 DAY="$(printf "%02d" "$2")"
+DEC_DAY="$(printf "%d" "$2")"
 
 render() {
   SAVE=""
@@ -28,7 +29,7 @@ render() {
 
   mkdir -p "$(dirname "$OUTPUT")"
   if [ -z "$SAVE" ] || ! [ -f "$OUTPUT" ]; then
-    sed "s/__YEAR__/$YEAR/g; s/__DAY__/$DAY/g; s/__PART__/$PART/g;" < "$TEMPLATE" > "$OUTPUT"
+    sed "s/__YEAR__/$YEAR/g; s/__DAY__/$DAY/g; s/__DEC_DAY__/$DEC_DAY/g; s/__PART__/$PART/g;" < "$TEMPLATE" > "$OUTPUT"
     git add "$OUTPUT"
   fi
 }

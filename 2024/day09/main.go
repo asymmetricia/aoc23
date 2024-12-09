@@ -49,7 +49,7 @@ func main() {
 		TimestampFormat: "2006-01-02T15:04:05",
 	})
 
-	input := aoc.Input(__YEAR__, __DEC_DAY__)
+	input := aoc.Input(2024, 9)
 	log.Printf("input solution A: %d", solutionA(input))
 	log.Printf("input solution B: %d", solutionB(input))
 }
