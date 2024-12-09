@@ -1,6 +1,8 @@
 package canvas
 
 import (
+	"github.com/asymmetricia/aoc23/coord"
+	"github.com/asymmetricia/pencil"
 	"image"
 	"image/color"
 	"strings"
@@ -15,10 +17,16 @@ type Cell struct {
 	Font  aoc.Font
 }
 
+type Line struct {
+	A, B  coord.Coord
+	Color color.Color
+}
+
 // A Canvas is a dense two-dimensional grid of Cells, where a Cell is a tuple of a color and a rune.
 type Canvas struct {
 	Timing float32
 	Pix    [][]Cell
+	Lines  []Line
 }
 
 func (f *Canvas) Set(x, y int, value Cell) {
@@ -102,6 +110,19 @@ func (f *Canvas) RenderRect(minWidth int, minHeight int, opts ...aoc.TypesetOpts
 			aoc.Typeset(img, image.Pt(x*aoc.GlyphWidth*opt.Scale, y*aoc.LineHeight*opt.Scale), string(accum), c, opt)
 		}
 	}
+
+	for _, line := range f.Lines {
+		ax := line.A.X*aoc.GlyphWidth*opt.Scale + aoc.GlyphWidth*opt.Scale/2
+		bx := line.B.X*aoc.GlyphWidth*opt.Scale + aoc.GlyphWidth*opt.Scale/2
+		ay := line.A.Y*aoc.LineHeight*opt.Scale + aoc.LineHeight*opt.Scale/2
+		by := line.B.Y*aoc.LineHeight*opt.Scale + aoc.LineHeight*opt.Scale/2
+
+		pencil.Line(img,
+			image.Pt(ax, ay),
+			image.Pt(bx, by),
+			line.Color)
+	}
+
 	return img
 }
 
