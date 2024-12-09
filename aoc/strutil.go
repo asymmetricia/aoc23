@@ -2,6 +2,7 @@ package aoc
 
 import (
 	"fmt"
+	"golang.org/x/exp/constraints"
 	"strconv"
 	"strings"
 )
@@ -48,4 +49,12 @@ func Map[X any, Y any](x []X, f func(X) Y) []Y {
 		ret[i] = f(xx)
 	}
 	return ret
+}
+
+func Sum[X constraints.Integer | constraints.Float](values []X) X {
+	var sum X
+	for _, value := range values {
+		sum += value
+	}
+	return sum
 }

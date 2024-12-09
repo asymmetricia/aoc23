@@ -228,9 +228,7 @@ func (enc *MP4Encoder) Encode(image image.Image) error {
 	if err != nil {
 		return err
 	}
-	if f, ok := enc.stdin.(*os.File); ok {
-		return f.Sync()
-	}
+
 	return nil
 }
 

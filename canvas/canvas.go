@@ -24,6 +24,8 @@ type Line struct {
 
 // A Canvas is a dense two-dimensional grid of Cells, where a Cell is a tuple of a color and a rune.
 type Canvas struct {
+	// Timing is how many 100ths of a second the canvas should be visible for, if
+	// rendered into an animation.
 	Timing float32
 	Pix    [][]Cell
 	Lines  []Line
@@ -409,4 +411,23 @@ func (c *Canvas) DrawRectangle(x1, y1, x2, y2 int, col color.Color, font aoc.Fon
 		c.Set(x1, y, Cell{col, aoc.LineV, font})
 		c.Set(x2, y, Cell{col, aoc.LineV, font})
 	}
+}
+
+func ProgressBar(p int, width int) []rune {
+	var ret []rune
+	for i := 0; i < width; i++ {
+		start := i * 100 / width
+		p33 := start + 100/width/3
+		p67 := start + 2*100/width/3
+		if p < start {
+			ret = append(ret, aoc.BlockLight)
+		} else if p < p33 {
+			ret = append(ret, aoc.BlockMedium)
+		} else if p < p67 {
+			ret = append(ret, aoc.BlockDark)
+		} else {
+			ret = append(ret, aoc.BlockFull)
+		}
+	}
+	return ret
 }

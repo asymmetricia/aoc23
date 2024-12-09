@@ -252,10 +252,14 @@ func Typeset(img draw.Image, cursor image.Point, line string, color color.Color,
 }
 
 const (
-	LineTL = '┏'
-	LineH  = '━'
-	LineTR = '┓'
-	LineV  = '┃'
-	LineBL = '┗'
-	LineBR = '┛'
+	LineTL      = '┏'
+	LineH       = '━'
+	LineTR      = '┓'
+	LineV       = '┃'
+	LineBL      = '┗'
+	LineBR      = '┛'
+	BlockFull   = '█'
+	BlockDark   = '▓'
+	BlockMedium = '▒'
+	BlockLight  = '░'
 )
