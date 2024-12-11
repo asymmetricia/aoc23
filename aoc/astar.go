@@ -26,6 +26,17 @@ func AStarGraph[Cell comparable](
 		fScore map[Cell]int,
 		current Cell),
 ) []Cell {
+	if heuristic == nil {
+		heuristic = func(_ Cell) int {
+			return 0
+		}
+	}
+	if cost == nil {
+		cost = func(_, _ Cell) int {
+			return 1
+		}
+	}
+
 	openSet := map[Cell]bool{start: true}
 	cameFrom := map[Cell]Cell{}
 	gScore := map[Cell]int{
@@ -109,7 +120,7 @@ func AStarGraph[Cell comparable](
 }
 
 func AStarGrid[Cell any](
-	grid map[coord.Coord]Cell,
+	grid coord.World,
 	start coord.Coord,
 	goal set.Set[coord.Coord],
 	cost func(from, to coord.Coord) int,
@@ -124,13 +135,7 @@ func AStarGrid[Cell any](
 	)) []coord.Coord {
 	return AStarGraph(start, goal,
 		func(a coord.Coord) []coord.Coord {
-			var ret []coord.Coord
-			for _, n := range a.Neighbors(diag) {
-				if _, ok := grid[n]; ok {
-					ret = append(ret, n)
-				}
-			}
-			return ret
+			return a.Neighbors(diag)
 		},
 		cost,
 		heuristic,

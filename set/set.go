@@ -86,3 +86,7 @@ func FromString(s string) Set[rune] {
 func FromWords(s string) Set[string] {
 	return FromItems(strings.Fields(s))
 }
+
+func FromItem[K comparable](item K) Set[K] {
+	return Set[K]{item: true}
+}

@@ -5,7 +5,14 @@ import (
 	"testing"
 )
 
-const testInputA = `
+const testInputA = `89010123
+78121874
+87430965
+96549874
+45678903
+32019012
+01329801
+10456732
 `
 
 const testInputB = testInputA
@@ -18,7 +25,7 @@ func TestSolutionA(t *testing.T) {
 	}
 
 	tests := []test{
-		{"basic A", testInputA, -1},
+		{"basic A", testInputA, 36},
 	}
 
 	for _, tt := range tests {
@@ -37,7 +44,7 @@ func TestSolutionB(t *testing.T) {
 	}
 
 	tests := []test{
-		{"basic B", testInputB, -1},
+		{"basic B", testInputB, 81},
 	}
 
 	for _, tt := range tests {

@@ -29,7 +29,9 @@ func RenderGif(canvases []*Canvas, filename string, log logrus.FieldLogger) {
 		log.Fatalf("error rendering GIF: %w", err)
 	}
 
-	anim.Delay[len(anim.Delay)-2] = 500
+	if len(anim.Delay) >= 2 {
+		anim.Delay[len(anim.Delay)-2] = 500
+	}
 
 	aoc.SaveGIF(anim, filename, log)
 	log.Printf("rendered %d frames", len(canvases))
