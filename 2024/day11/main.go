@@ -2,7 +2,9 @@ package main
 
 import (
 	"bytes"
+	"strconv"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/sirupsen/logrus"
@@ -12,35 +14,67 @@ import (
 
 var log = logrus.StandardLogger()
 
+var rule = aoc.Cache(ruleImpl)
+
+func ruleImpl(stone int) []int {
+	if stone == 0 {
+		return []int{1}
+	}
+	if st := strconv.Itoa(stone); len(st)%2 == 0 {
+		a, _ := strconv.ParseInt(st[:len(st)/2], 10, 64)
+		b, _ := strconv.ParseInt(st[len(st)/2:], 10, 64)
+		return []int{int(a), int(b)}
+	}
+	return []int{stone * 2024}
+}
+
+var ruleLen func(int, int) int
+
+func init() {
+	ruleLen = aoc.Cache2(ruleLenImpl)
+}
+
+func ruleLenImpl(stone int, i int) int {
+	if i == 0 {
+		return 1
+	}
+
+	var sum int
+	for _, s := range rule(stone) {
+		sum += ruleLen(s, i-1)
+	}
+
+	return sum
+}
+
 func solutionA(input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
 	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	uniq := map[string]bool{}
-	for _, line := range lines {
-		uniq[line] = true
+	stones := aoc.Ints(lines[0])
+
+	var sum int
+	for _, stone := range stones {
+		sum += ruleLen(stone, 25)
 	}
-	log.Printf("read %d lines (%d unique)", len(lines), len(uniq))
 
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
-
-	return -1
+	return sum
 }
 
 func solutionB(input []byte) int {
 	// trim trailing space only
 	input = bytes.Replace(input, []byte("\r"), []byte(""), -1)
 	input = bytes.TrimRightFunc(input, unicode.IsSpace)
+	lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
+	stones := aoc.Ints(lines[0])
 
-	// lines := strings.Split(strings.TrimRightFunc(string(input), unicode.IsSpace), "\n")
-	//for _, line := range lines {
-	//	//fields := strings.Fields(line)
-	//}
+	var sum int
+	for _, stone := range stones {
+		sum += ruleLen(stone, 75)
+	}
 
-	return -1
+	return sum
 }
 
 func main() {
@@ -50,6 +84,11 @@ func main() {
 	})
 
 	input := aoc.Input(2024, 11)
-	log.Printf("input solution A: %d", solutionA(input))
-	log.Printf("input solution B: %d", solutionB(input))
+	aStart := time.Now()
+	a := solutionA(input)
+	log.Printf("input solution A: %d, %dms", a, time.Since(aStart).Milliseconds())
+
+	bStart := time.Now()
+	b := solutionB(input)
+	log.Printf("input solution B: %d, %dms", b, time.Since(bStart).Milliseconds())
 }
