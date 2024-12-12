@@ -50,6 +50,11 @@ func main() {
 	})
 
 	input := aoc.Input(__YEAR__, __DEC_DAY__)
-	log.Printf("input solution A: %d", solutionA(input))
-	log.Printf("input solution B: %d", solutionB(input))
+	aStart := time.Now()
+	aSoln := solutionA(input)
+	log.Printf("input solution A: %d (%dms)", aSoln, time.Since(aStart).Milliseconds())
+
+	bStart := time.Now()
+	bSoln := solutionB(input)
+	log.Printf("input solution B: %d (%dms)", bSoln, time.Since(bStart).Milliseconds())
 }
