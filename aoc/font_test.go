@@ -33,7 +33,7 @@ func TestTypesetBytes(t *testing.T) {
 			[]byte("    #    #         #     #   #     #     #   #"),
 			[]byte("    #    #         #      ###      #      ### #"),
 		}},
-		{"render T 2X", "T", []TypesetOpts{{2, false}}, [][]byte{
+		{"render T 2X", "T", []TypesetOpts{{2, false, Pixl}}, [][]byte{
 			[]byte("  ############"),
 			[]byte("  ############"),
 			[]byte("        ##"),
