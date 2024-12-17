@@ -233,6 +233,9 @@ func (enc *MP4Encoder) Encode(image image.Image) error {
 }
 
 func (enc *MP4Encoder) Close() error {
+	if syncer, ok := enc.stdin.(interface{ Sync() error }); ok {
+		syncer.Sync()
+	}
 	if err := enc.stdin.Close(); err != nil {
 		return err
 	}

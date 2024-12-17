@@ -31,6 +31,16 @@ type Canvas struct {
 	Lines  []Line
 }
 
+func (f *Canvas) Get(x, y int) (Cell, bool) {
+	if y >= len(f.Pix) {
+		return Cell{}, false
+	}
+	if x >= len(f.Pix[y]) {
+		return Cell{}, false
+	}
+	return f.Pix[y][x], true
+}
+
 func (f *Canvas) Set(x, y int, value Cell) {
 	for y >= len(f.Pix) {
 		f.Pix = append(f.Pix, nil)
