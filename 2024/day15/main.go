@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/asymmetricia/aoc23/canvas"
 	"github.com/asymmetricia/aoc23/coord"
+	"github.com/asymmetricia/aoc23/isovox"
 	"golang.org/x/exp/slices"
 	"strings"
 	"time"
@@ -163,8 +164,18 @@ func solutionB(input []byte) int {
 
 	robot := grid.Find('@')[0]
 
+	enc, err := aoc.NewMP4Encoder("../../2024-15.mp4", 60, log)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	var stack []*canvas.Canvas
+	last := time.Now()
 	for stepIdx, step := range steps {
+		if time.Since(last) >= time.Second {
+			log.Printf("%d/%d", stepIdx, len(steps))
+			last = time.Now()
+		}
 		dir := map[rune]coord.Direction{
 			'^': coord.North,
 			'>': coord.East,
@@ -177,11 +188,12 @@ func solutionB(input []byte) int {
 		push(grid, robot, dir)
 		robot = robot.Move(dir)
 
-		if stepIdx%10 > 0 {
+		if stepIdx%5 > 0 {
 			continue
 		}
 
 		cv := &canvas.Canvas{}
+		iw := isovox.World{Voxels: map[isovox.Coord]*isovox.Voxel{}}
 		grid.Each(func(c coord.Coord) (stop bool) {
 			col := aoc.TolVibrantGrey
 			if grid.At(c) == '@' {
@@ -190,10 +202,19 @@ func solutionB(input []byte) int {
 			if grid.At(c) == ']' || grid.At(c) == '[' {
 				col = aoc.TolVibrantCyan
 			}
+			if grid.At(c) != '.' {
+				iw.Voxels[isovox.Coord{c.X, c.Y, 0}] = &isovox.Voxel{Color: col}
+			}
 			cv.Set(c.X, c.Y, canvas.Cell{Color: col, Value: grid.At(c)})
 			return
 		})
 		stack = append(stack, cv)
+		if err := enc.Encode(iw.Render(8)); err != nil {
+			log.Fatal(err)
+		}
+	}
+	if err := enc.Close(); err != nil {
+		log.Fatal(err)
 	}
 
 	canvas.RenderGif(stack, "../../2024-15.gif", log)

@@ -67,19 +67,18 @@ func (w *World) Bounds(size int) (screen image.Rectangle, min Coord, max Coord) 
 		max.Y = aoc.Min(max.Y, c.Y)
 		max.Z = aoc.Min(max.Z, c.Z)
 
-		x := c.X*dx + c.Y*dx
-		y := c.X*dy - c.Y*dy - c.Z*size
-		if x < screen.Min.X {
-			screen.Min.X = x
+		viewCoord := viewFromWorld(Coord{c.X, c.Y, c.Z}, size)
+		if viewCoord.X-dx < screen.Min.X {
+			screen.Min.X = viewCoord.X - dx
 		}
-		if x+2*dx+1 > screen.Max.X {
-			screen.Max.X = x + 2*dx + 1
+		if viewCoord.X+3*dx > screen.Max.X {
+			screen.Max.X = viewCoord.X + 3*dx
 		}
-		if y-size-dy < screen.Min.Y {
-			screen.Min.Y = y - size - dy
+		if viewCoord.Y-dy < screen.Min.Y {
+			screen.Min.Y = viewCoord.Y - dy
 		}
-		if y+dy+1 > screen.Max.Y {
-			screen.Max.Y = y + dy + 1
+		if viewCoord.Y+5*dy > screen.Max.Y {
+			screen.Max.Y = viewCoord.Y + 5*dy
 		}
 	}
 
@@ -87,17 +86,25 @@ func (w *World) Bounds(size int) (screen image.Rectangle, min Coord, max Coord) 
 }
 
 func (w *World) Render(size int) image.Image {
-	dy := dy(size)
-	dx := dx(size)
-
 	r, _, _ := w.Bounds(size)
 
 	voxelCoords := maps.Keys(w.Voxels)
+
+	/*        (0,0)
+	 *         /\            0
+	 *        /\/\           1
+	 * (0,2) /\/\/\ (2,0)    2
+	 *       \/\/\/          3
+	 *        \/\/           4
+	 *         \/
+	 *         (2,2)
+	 */
 	slices.SortFunc(voxelCoords, func(a, b Coord) bool {
-		// front-most is highest dx, lowest dy, highest dz
-		depthA := a.X - a.Y + a.Z
-		depthB := b.X - b.Y + b.Z
-		return depthA < depthB
+		depthA := a.X + a.Y - 2*a.Z
+		depthB := b.X + b.Y - 2*b.Z
+		return depthA == depthB && a.X == b.X && a.Y < b.Y ||
+			depthA == depthB && a.X < b.X ||
+			depthA < depthB
 	})
 
 	imgRect := r.Sub(r.Min)
@@ -110,18 +117,46 @@ func (w *World) Render(size int) image.Image {
 	ret := image.NewRGBA64(imgRect)
 	draw.Draw(ret, ret.Bounds(), image.Black, image.Pt(0, 0), draw.Over)
 	for _, coord := range voxelCoords {
-		vx := coord.X*dx + coord.Y*dx
-		vy := coord.X*dy - coord.Y*dy - coord.Z*size - size - dy
+		viewCoord := viewFromWorld(coord, size)
 		sprite := w.Voxels[coord].Sprite(size)
-		draw.Draw(ret, sprite.Bounds().Add(image.Pt(vx, vy).Sub(r.Min)), sprite, image.Pt(0, 0), draw.Over)
+		draw.Draw(ret, sprite.Bounds().Add(image.Pt(viewCoord.X, viewCoord.Y).Sub(r.Min)), sprite, image.Pt(0, 0), draw.Over)
 	}
 	return ret
 }
 
+var dxCache = map[int]int{}
+
+// dx returns the magnitude of movement in the X direction for one square of
+// movement at the given size
 func dx(size int) int {
-	return int(math.Cos(math.Pi*30/180) * float64(size))
+	if v, ok := dxCache[size]; ok {
+		return v
+	}
+	v := int(math.Cos(math.Pi*30/180) * float64(size))
+	dxCache[size] = v
+	return v
 }
 
+var dyCache = map[int]int{}
+
+// dy returns the magnitude of movement in the Y direction for one square of
+// movement at the given size
 func dy(size int) int {
-	return int(math.Sin(math.Pi*30/180) * float64(size))
+	if v, ok := dyCache[size]; ok {
+		return v
+	}
+	v := int(math.Sin(math.Pi*30/180) * float64(size))
+	dyCache[size] = v
+	return v
+}
+
+func viewFromWorld(c Coord, size int) Coord {
+	// positive y moves down & to the left * 30deg angle
+	// positive x moves down & to the right * 30deg angle
+	// positive z moves straight up
+	return Coord{
+		-c.Y*dx(size) + c.X*dx(size),
+		c.Y*dy(size) + c.X*dy(size) - 2*c.Z*dy(size),
+		0,
+	}
 }
