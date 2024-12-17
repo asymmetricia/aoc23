@@ -11,7 +11,7 @@ import (
 type Voxel struct {
 	Color  color.Color
 	sprite image.Image
-	size   int
+	Size   int
 }
 
 func (v *Voxel) Sprite(size int) image.Image {
@@ -37,21 +37,34 @@ func (v *Voxel) Sprite(size int) image.Image {
 		return img
 	}
 
-	dy := dy(size)
-	dx := dx(size)
-	h := size + dy*2
-	w := dx * 2
+	sDy := dy(size)
+	sDx := dx(size)
+	h := size + sDy*2
+	w := sDx * 2
 
 	sprite := image.NewRGBA64(image.Rect(0, 0, w+1, h+1))
 	top, left, right, edge := v.colors()
 
-	center := image.Pt(dx, size)
-	twelve := image.Pt(dx, 0)
-	two := image.Pt(2*dx, dy)
-	four := image.Pt(2*dx, size+dy)
-	six := image.Pt(dx, size*2)
-	eight := image.Pt(0, size+dy)
-	ten := image.Pt(0, dy)
+	var oDx, oDy, oSize = sDx, sDy, size
+	if v.Size != 0 {
+		oDx = dx(v.Size)
+		oDy = dy(v.Size)
+		oSize = v.Size
+	}
+
+	center := image.Pt(oDx, oSize)
+	twelve := image.Pt(oDx, 0)
+	two := image.Pt(2*oDx, oDy)
+	four := image.Pt(2*oDx, oSize+oDy)
+	six := image.Pt(oDx, oSize*2)
+	eight := image.Pt(0, oSize+oDy)
+	ten := image.Pt(0, oDy)
+
+	if oSize != size {
+		for _, pt := range []*image.Point{&center, &twelve, &two, &four, &six, &eight, &ten} {
+			*pt = image.Pt(pt.X+(sDx-oDx)/2, pt.Y+(sDy-oDy)*2)
+		}
+	}
 
 	/*      1 2
 	        .

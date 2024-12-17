@@ -195,17 +195,18 @@ func solutionB(input []byte) int {
 		cv := &canvas.Canvas{}
 		iw := isovox.World{Voxels: map[isovox.Coord]*isovox.Voxel{}}
 		grid.Each(func(c coord.Coord) (stop bool) {
-			col := aoc.TolVibrantGrey
 			if grid.At(c) == '@' {
-				col = aoc.TolVibrantMagenta
+				cv.Set(c.X, c.Y, canvas.Cell{Color: aoc.TolVibrantMagenta, Value: '@'})
+				iw.Voxels[isovox.Coord{c.X, c.Y, 0}] = &isovox.Voxel{Color: aoc.TolVibrantMagenta, Size: 4}
 			}
 			if grid.At(c) == ']' || grid.At(c) == '[' {
-				col = aoc.TolVibrantCyan
+				cv.Set(c.X, c.Y, canvas.Cell{Color: aoc.TolVibrantCyan, Value: grid.At(c)})
+				iw.Voxels[isovox.Coord{c.X, c.Y, 0}] = &isovox.Voxel{Color: aoc.TolVibrantCyan, Size: 6}
 			}
-			if grid.At(c) != '.' {
-				iw.Voxels[isovox.Coord{c.X, c.Y, 0}] = &isovox.Voxel{Color: col}
+			if grid.At(c) == '#' {
+				cv.Set(c.X, c.Y, canvas.Cell{Color: aoc.TolVibrantGrey, Value: '#'})
+				iw.Voxels[isovox.Coord{c.X, c.Y, 0}] = &isovox.Voxel{Color: aoc.TolVibrantGrey}
 			}
-			cv.Set(c.X, c.Y, canvas.Cell{Color: col, Value: grid.At(c)})
 			return
 		})
 		stack = append(stack, cv)
