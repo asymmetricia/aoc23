@@ -1,9 +1,11 @@
 package search
 
 import (
+	"github.com/asymmetricia/aoc23/canvas"
 	"github.com/asymmetricia/aoc23/coord"
 	"github.com/asymmetricia/aoc23/pqueue"
 	"github.com/asymmetricia/aoc23/set"
+	"image/color"
 	"iter"
 	"maps"
 	"math"
@@ -176,5 +178,73 @@ type DCallbackFn[Cell comparable] func(
 func DCallbacks[Cell comparable](f ...DCallbackFn[Cell]) Option[Cell] {
 	return func(config *Config[Cell]) {
 		config.DCallbacks = f
+	}
+}
+
+func Canvas(
+	grid coord.World,
+	base color.Color,
+	walkable color.Color,
+	end color.Color,
+	open color.Color,
+	cursor color.Color,
+	fn func(canvas2 *canvas.Canvas),
+) Option[coord.Coord] {
+	return func(config *Config[coord.Coord]) {
+		config.Callbacks = append(
+			config.Callbacks,
+			func(
+				openSet map[coord.Coord]bool,
+				cameFrom map[coord.Coord]coord.Coord,
+				gScore map[coord.Coord]int,
+				fScore map[coord.Coord]int,
+				current coord.Coord,
+			) {
+				cv := &canvas.Canvas{}
+				grid.Each(func(c coord.Coord) (stop bool) {
+					v := grid.At(c)
+					col := base
+					if c == current {
+						col = cursor
+					} else if config.IsGoal(c) {
+						col = end
+					} else if openSet[c] {
+						col = open
+					} else if v == '.' {
+						col = walkable
+					}
+					cv.Set(c.X, c.Y, canvas.Cell{Color: col, Value: v})
+					return
+				})
+				fn(cv)
+			},
+		)
+		config.DCallbacks = append(
+			config.DCallbacks,
+			func(
+				q *pqueue.PQueue[coord.Coord],
+				dist map[coord.Coord]int,
+				prev map[coord.Coord]coord.Coord,
+				current coord.Coord,
+			) {
+				cv := &canvas.Canvas{}
+				grid.Each(func(c coord.Coord) (stop bool) {
+					v := grid.At(c)
+					col := base
+					if c == current {
+						col = cursor
+					} else if config.IsGoal(c) {
+						col = end
+					} else if q.Has(c) {
+						col = open
+					} else if v == '.' {
+						col = walkable
+					}
+					cv.Set(c.X, c.Y, canvas.Cell{Color: col, Value: v})
+					return
+				})
+				fn(cv)
+			},
+		)
 	}
 }

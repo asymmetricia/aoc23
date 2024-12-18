@@ -5,11 +5,11 @@ import (
 	"strings"
 )
 
-type PQueue[Node any] struct {
+type PQueue[Node comparable] struct {
 	Head *PQueueNode[Node]
 }
 
-type PQueueNode[Node any] struct {
+type PQueueNode[Node comparable] struct {
 	Node     Node
 	Priority int
 	Next     *PQueueNode[Node]
@@ -68,4 +68,12 @@ func (pq *PQueue[Node]) AddWithPriority(node Node, prio int) {
 
 	newnode.Next, cursor.Next = cursor.Next, newnode
 	return
+}
+
+func (pq *PQueue[Node]) Has(c Node) bool {
+	n := pq.Head
+	for n.Node != c {
+		n = n.Next
+	}
+	return n.Node == c
 }

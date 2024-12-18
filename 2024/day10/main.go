@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"github.com/asymmetricia/aoc23/coord"
 	"github.com/asymmetricia/aoc23/isovox"
-	"github.com/asymmetricia/aoc23/set"
+	"github.com/asymmetricia/aoc23/search"
 	"strings"
 	"unicode"
 
@@ -29,17 +29,20 @@ func solutionA(input []byte) int {
 
 	for _, zero := range zeroes {
 		for _, nine := range nines {
-			path := aoc.AStarGraph(zero, set.FromItems([]coord.Coord{nine}), func(a coord.Coord) []coord.Coord {
-				var ret []coord.Coord
-				av := grid.At(a)
-				for _, neigh := range a.Neighbors(false) {
-					nv := grid.At(neigh)
-					if nv-av == 1 {
-						ret = append(ret, neigh)
+			path := search.AStar(
+				zero,
+				search.Goal(nine),
+				search.Neighbors(func(a coord.Coord) []coord.Coord {
+					var ret []coord.Coord
+					av := grid.At(a)
+					for _, neigh := range a.Neighbors(false) {
+						nv := grid.At(neigh)
+						if nv-av == 1 {
+							ret = append(ret, neigh)
+						}
 					}
-				}
-				return ret
-			}, nil, nil)
+					return ret
+				}))
 			if path != nil {
 				scores += 1
 			}
