@@ -31,6 +31,24 @@ var (
 	TolVibrantGrey    = color.RGBA{187, 187, 187, 255}
 )
 
+var TolIncandescent = color.Palette{
+	color.Black,
+	color.Transparent,
+	color.White,
+
+	color.RGBA{168, 0, 3, 255},
+	color.RGBA{228, 5, 21, 255},
+	color.RGBA{249, 73, 2, 255},
+	color.RGBA{246, 121, 11, 255},
+	color.RGBA{241, 153, 3, 255},
+	color.RGBA{231, 181, 3, 255},
+	color.RGBA{213, 206, 4, 255},
+	color.RGBA{187, 228, 83, 255},
+	color.RGBA{162, 244, 155, 255},
+	color.RGBA{198, 247, 214, 255},
+	color.RGBA{206, 255, 255, 255},
+}
+
 // TolSequentialSmoothRainbow is Paul Tol's "smooth rainbow" sequential color palette.
 var TolSequentialSmoothRainbow = color.Palette{
 	color.Black,
@@ -72,23 +90,43 @@ var TolSequentialSmoothRainbow = color.Palette{
 	color.RGBA{82, 26, 19, 255},
 }
 
-// TolScale returns a sequential rainbow color from TolSequentialSmoothRainbow
-// for the given value, scaled to min and max. Out of bound values (< min or >
-// max) are clamped.
-func TolScale[K constraints.Integer | constraints.Float](min, max, val K) color.RGBA {
+// TolScale returns a sequential rainbow color from a presumed sequential
+// palette; by default TolSequentialSmoothRainbow, but TolIncandescent is also
+// available for the given value, scaled to min and max. Out of bound values (<
+// min or > max) are clamped.
+func TolScale[K constraints.Integer | constraints.Float](min, max, val K, palette ...color.Palette) color.RGBA {
+	p := TolSequentialSmoothRainbow
+	if len(palette) > 0 {
+		p = palette[0]
+	}
+
+	psize := len(p) - 3
+
 	scale := max - min
 	adj := val - min
+
 	// 34 possible colors
 	// i should go from 0 ... 33.99999, so when we truncate down, we end up with 0..33
 	// we can't guarantee we don't get 34 exactly, but we clamp after truncating so it's OK
-	i := int(float32(adj) / float32(scale) * 34)
+	i := float32(adj) / float32(scale) * float32(psize)
 	if i < 0 {
-		i = 0
+		return p[3].(color.RGBA)
 	}
-	if i > 33 {
-		i = 33
+	if int(i)+3 >= psize {
+		return p[len(p)-1].(color.RGBA)
 	}
-	return TolSequentialSmoothRainbow[3+i].(color.RGBA)
+
+	base := p[3+int(i)].(color.RGBA)
+	next := p[3+int(i)+1].(color.RGBA)
+	baseFrac := 1 - i + float32(int(i))
+	nextFrac := i - float32(int(i))
+
+	return color.RGBA{
+		R: uint8(float32(base.R)*baseFrac + float32(next.R)*nextFrac),
+		G: uint8(float32(base.G)*baseFrac + float32(next.G)*nextFrac),
+		B: uint8(float32(base.B)*baseFrac + float32(next.B)*nextFrac),
+		A: 255,
+	}
 }
 
 // TolScaleLog returns a sequential rainbow color from TolSequentialSmoothRainbow

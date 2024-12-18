@@ -16,6 +16,19 @@ func (d Direction) Icon() rune {
 	}[d]
 }
 
+func (d Direction) Opposite() Direction {
+	return map[Direction]Direction{
+		North:     South,
+		NorthEast: SouthWest,
+		East:      West,
+		SouthEast: NorthWest,
+		South:     North,
+		SouthWest: NorthEast,
+		West:      East,
+		NorthWest: SouthEast,
+	}[d]
+}
+
 func (d Direction) CW(fortyFive ...bool) Direction {
 	if len(fortyFive) > 0 && fortyFive[0] {
 		return map[Direction]Direction{
@@ -65,6 +78,10 @@ func (d Direction) String() string {
 		}
 	}
 	return "(bad direction)"
+}
+
+var CardinalDirections = []Direction{
+	North, East, South, West,
 }
 
 var Directions = []Direction{

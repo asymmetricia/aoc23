@@ -26,9 +26,10 @@ type Line struct {
 type Canvas struct {
 	// Timing is how many 100ths of a second the canvas should be visible for, if
 	// rendered into an animation.
-	Timing float32
-	Pix    [][]Cell
-	Lines  []Line
+	Timing  float32
+	Pix     [][]Cell
+	Lines   []Line
+	Palette color.Palette
 }
 
 func (f *Canvas) Get(x, y int) (Cell, bool) {
@@ -93,7 +94,11 @@ func (f *Canvas) RenderRect(minWidth int, minHeight int, opts ...aoc.TypesetOpts
 		height = minHeight
 	}
 
-	img := image.NewPaletted(image.Rect(0, 0, width, height), aoc.TolVibrant)
+	p := aoc.TolVibrant
+	if f.Palette != nil {
+		p = f.Palette
+	}
+	img := image.NewPaletted(image.Rect(0, 0, width, height), p)
 	for y, row := range f.Pix {
 		var c color.Color
 		var f aoc.Font
