@@ -1,6 +1,6 @@
 module github.com/asymmetricia/aoc23
 
-go 1.18
+go 1.23
 
 require (
 	github.com/asymmetricia/pencil v0.0.6

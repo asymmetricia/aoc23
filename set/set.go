@@ -1,6 +1,7 @@
 package set
 
 import (
+	"maps"
 	"sort"
 	"strings"
 
@@ -69,6 +70,14 @@ func (a Set[K]) Item() K {
 	}
 	var zero K
 	return zero
+}
+
+func (a Set[K]) Items() []K {
+	var ret []K
+	for k := range maps.Keys(a) {
+		ret = append(ret, k)
+	}
+	return ret
 }
 
 func FromItems[K comparable](items []K) Set[K] {

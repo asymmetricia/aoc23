@@ -3,7 +3,7 @@ package main
 import (
 	"bytes"
 	"github.com/asymmetricia/aoc23/coord"
-	"github.com/asymmetricia/aoc23/set"
+	"github.com/asymmetricia/aoc23/search"
 	"strings"
 	"time"
 	"unicode"
@@ -42,7 +42,11 @@ func solutionA(input []byte, test bool) int {
 		grid.Set(c, aoc.BlockFull)
 	}
 
-	path := aoc.AStarGrid(grid, coord.C(0, 0), set.FromItem(coord.C(dim-1, dim-1)), nil, nil, false)
+	path := search.AStar(coord.C(0, 0),
+		search.Grid(grid, false),
+		search.Goal(coord.C(dim-1, dim-1)),
+		search.DistanceHeuristic(),
+	)
 	return len(path) - 1
 }
 
@@ -76,15 +80,10 @@ func solutionB(input []byte, test bool) string {
 	i := count
 	for {
 		grid.Set(coord.MustFromComma(lines[i]), aoc.BlockFull)
-		path := aoc.Dijkstra(coord.C(0, 0), coord.C(dim-1, dim-1), func(a coord.Coord) []coord.Coord {
-			var ret []coord.Coord
-			for _, n := range a.Neighbors(false) {
-				if grid.At(n) == '.' {
-					ret = append(ret, n)
-				}
-			}
-			return ret
-		}, nil)
+
+		path := search.Dijkstra(coord.C(0, 0),
+			search.Goal(coord.C(dim-1, dim-1)),
+			search.Grid(grid, false))
 		if path == nil {
 			return lines[i]
 		}

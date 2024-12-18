@@ -1,13 +1,12 @@
 package aoc
 
 import (
-	"math"
-
 	"github.com/asymmetricia/aoc23/coord"
+	"github.com/asymmetricia/aoc23/search"
 	"github.com/asymmetricia/aoc23/set"
 )
 
-// AStarGraph finds the path from start to end along the grpah defined by edges
+// AStarGraph finds the path from start to end along the graph defined by edges
 // returns from calling neighbors against each cell such that the path minimizes
 // the total cost.
 //
@@ -19,125 +18,30 @@ func AStarGraph[Cell comparable](
 	neighbors func(a Cell) []Cell,
 	cost func(a, b Cell) int,
 	heuristic func(a Cell) int,
-	callback ...func(
-		openSet map[Cell]bool,
-		cameFrom map[Cell]Cell,
-		gScore map[Cell]int,
-		fScore map[Cell]int,
-		current Cell),
+	callback ...search.CallbackFn[Cell],
 ) []Cell {
-	if heuristic == nil {
-		heuristic = func(_ Cell) int {
-			return 0
-		}
-	}
-	if cost == nil {
-		cost = func(_, _ Cell) int {
-			return 1
-		}
-	}
-
-	openSet := map[Cell]bool{start: true}
-	cameFrom := map[Cell]Cell{}
-	gScore := map[Cell]int{
-		start: 0,
-	}
-	fScore := map[Cell]int{
-		start: heuristic(start),
-	}
-
-	found := false
-
-	var current Cell
-	for len(openSet) > 0 {
-		var curFscore = math.MaxInt
-		first := true
-
-		for c := range openSet {
-			fs, ok := fScore[c]
-			if !ok {
-				fs = math.MaxInt
-			}
-
-			if first || fs < curFscore {
-				first = false
-				current = c
-				curFscore = fs
-			}
-		}
-
-		for _, cb := range callback {
-			cb(openSet, cameFrom, gScore, fScore, current)
-		}
-
-		if goal[current] {
-			found = true
-			break
-		}
-
-		delete(openSet, current)
-
-		neighborList := neighbors(current)
-		for _, neighbor := range neighborList {
-			curGS, ok := gScore[current]
-			if !ok {
-				curGS = math.MaxInt
-			}
-
-			neighGS, ok := gScore[neighbor]
-			if !ok {
-				neighGS = math.MaxInt
-			}
-
-			tentativeGScore := curGS + cost(current, neighbor)
-			if tentativeGScore < neighGS {
-				cameFrom[neighbor] = current
-				gScore[neighbor] = tentativeGScore
-				fScore[neighbor] = tentativeGScore + heuristic(neighbor)
-				openSet[neighbor] = true
-			}
-		}
-	}
-
-	if !found {
-		return nil
-	}
-
-	ret := []Cell{current}
-	cursor := current
-	for {
-		if cursor == start {
-			break
-		}
-		cursor = cameFrom[cursor]
-		ret = append(ret, cursor)
-	}
-	for i := 0; i < len(ret)/2; i++ {
-		ret[i], ret[len(ret)-1-i] = ret[len(ret)-1-i], ret[i]
-	}
-
-	return ret
+	return search.AStar(start,
+		search.Callbacks(callback...),
+		search.Cost(cost),
+		search.GoalSet(goal),
+		search.Heuristic(heuristic),
+		search.Neighbors(neighbors),
+	)
 }
 
-func AStarGrid[Cell any](
+func AStarGrid(
 	grid coord.World,
 	start coord.Coord,
 	goal set.Set[coord.Coord],
 	cost func(from, to coord.Coord) int,
 	heuristic func(from coord.Coord) int,
 	diag bool,
-	callback ...func(
-		openSet map[coord.Coord]bool,
-		cameFrom map[coord.Coord]coord.Coord,
-		gScore map[coord.Coord]int,
-		fScore map[coord.Coord]int,
-		current coord.Coord,
-	)) []coord.Coord {
-	return AStarGraph(start, goal,
-		func(a coord.Coord) []coord.Coord {
-			return a.Neighbors(diag)
-		},
-		cost,
-		heuristic,
-		callback...)
+	callback ...search.CallbackFn[coord.Coord]) []coord.Coord {
+	return search.AStar(start,
+		search.Callbacks(callback...),
+		search.Cost(cost),
+		search.GoalSet(goal),
+		search.Grid(grid, diag),
+		search.Heuristic(heuristic),
+	)
 }
