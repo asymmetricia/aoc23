@@ -72,8 +72,8 @@ func (pq *PQueue[Node]) AddWithPriority(node Node, prio int) {
 
 func (pq *PQueue[Node]) Has(c Node) bool {
 	n := pq.Head
-	for n.Node != c {
+	for n != nil && n.Node != c {
 		n = n.Next
 	}
-	return n.Node == c
+	return n != nil && n.Node == c
 }
