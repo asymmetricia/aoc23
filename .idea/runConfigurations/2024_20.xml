@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="2024-20" type="GoApplicationRunConfiguration" factoryName="Go Application" folderName="2024">
+    <module name="aoc23" />
+    <working_directory value="$PROJECT_DIR$/2024/day20" />
+    <root_directory value="$PROJECT_DIR$" />
+    <kind value="FILE" />
+    <package value="github.com/asymmetricia/aoc23/2024/day20" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/2024/day20/main.go" />
+    <method v="2">
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="2024-20 test" run_configuration_type="GoTestRunConfiguration" />
+    </method>
+  </configuration>
+</component>

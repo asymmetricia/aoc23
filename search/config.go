@@ -25,6 +25,7 @@ type Config[Cell comparable] struct {
 	Cost         func(a, b Cell) int
 	NegativeCost bool
 	Heuristic    func(a Cell, goals iter.Seq[Cell]) int
+	MaxDistance  int
 
 	DCallbacks []DCallbackFn[Cell]
 	Callbacks  []CallbackFn[Cell]
@@ -38,6 +39,7 @@ func NewConfig[Cell comparable]() *Config[Cell] {
 		Heuristic: func(_ Cell, _ iter.Seq[Cell]) int {
 			return 0
 		},
+		MaxDistance: math.MaxInt,
 	}
 }
 
@@ -160,6 +162,12 @@ func DistanceHeuristic() Option[coord.Coord] {
 			}
 			return int(best)
 		}
+	}
+}
+
+func MaxDist[Cell comparable](d int) Option[Cell] {
+	return func(config *Config[Cell]) {
+		config.MaxDistance = d
 	}
 }
 

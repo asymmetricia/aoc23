@@ -265,6 +265,28 @@ type World interface {
 var _ World = (*SparseWorld)(nil)
 var _ World = (*DenseWorld)(nil)
 
+type LoadConfigOption func(*LoadConfig)
+
+func Dense() LoadConfigOption {
+	return func(config *LoadConfig) {
+		config.Dense = true
+	}
+}
+
+func Ignore(i string) LoadConfigOption {
+	return func(config *LoadConfig) {
+		config.Ignore = i
+	}
+}
+
+func Loadv2(lines []string, opts ...LoadConfigOption) World {
+	c := &LoadConfig{}
+	for _, opt := range opts {
+		opt(c)
+	}
+	return Load(lines, *c)
+}
+
 // Load loads a world from the given list of lines and returns it. The world is
 // dense (array-based) if `config.Dense` is true, otherwise it's sparse
 // (map-based). Characters present in `config.Ignore` will not be added to the
