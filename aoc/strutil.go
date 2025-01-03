@@ -43,6 +43,16 @@ func Ints(in string) []int {
 	return Map(strings.Fields(in), Int)
 }
 
+func Filter[X any](x []X, f func(X) bool) []X {
+	var ret []X
+	for _, xx := range x {
+		if f(xx) {
+			ret = append(ret, xx)
+		}
+	}
+	return ret
+}
+
 func Map[X any, Y any](x []X, f func(X) Y) []Y {
 	ret := make([]Y, len(x))
 	for i, xx := range x {
